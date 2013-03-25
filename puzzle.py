@@ -41,7 +41,7 @@ class Cell:
 			else:
 				return supportedAlphabets[self.base][self.value]
 		else:
-			return '_'
+			return '.'
 
 
 class Grid:
@@ -92,8 +92,14 @@ class Grid:
 	def __str__(self):
 
 		ret = ''
+		blockBase = int(sqrt(self.base))
 		for row in range(self.base):
+			if row != 0 and row % blockBase == 0:
+				div = ('---'*blockBase+'-+-')*blockBase+'\n'
+				ret += div[:-4]+'\n'
 			for col in range(self.base):
+				if col != 0 and col % blockBase == 0:
+					ret += ' | '
 				ret += ' {} '.format(self.cellAt(row, col))
 			ret += '\n'
 		return ret
