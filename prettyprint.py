@@ -1,6 +1,5 @@
-#!/bin/env python
+'''prettyprint.py
 
-'''
 Pretreat strings with ANSI formatting control sequences
 '''
 
