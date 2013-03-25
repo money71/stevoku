@@ -20,7 +20,7 @@ supportedAlphabets = {
 class Cell:
 	'''Used to store a single cell in the sudoku grid'''
 
-	def __init__(self, value = None, given = False):
+	def __init__(self, base = 9, value = None, given = False):
 
 		self.row = None
 		self.column = None
@@ -28,13 +28,26 @@ class Cell:
 
 		self.domain = []
 		self.value = value
+		self.base = base
 		self.given = given
+
+	def __str__(self):
+
+		if self.value != None:
+			if self.given:
+				return pp.format( supportedAlphabets[self.base][self.value], pp.BOLD )
+			elif len(self.domain) == 1:
+				return pp.format( supportedAlphabets[self.base][self.value], pp.TEXT_RED )
+			else:
+				return supportedAlphabets[self.base][self.value]
+		else:
+			return '_'
 
 
 class Grid:
 	'''Stores the overall grid arrangement as sets'''
 
-	def __init__(self, base = 10):
+	def __init__(self, base = 9):
 
 		self.base = base
 		self.rows = [set() for i in range(base)]
@@ -56,7 +69,7 @@ class Grid:
 
 	def cellAt(self, x, y):
 	
-		intersect = columns[x].intersection(rows[y])
+		intersect = self.columns[x].intersection(self.rows[y])
 		if len(intersect) != 0:
 			return list(intersect)[0]
 		else:
@@ -76,7 +89,14 @@ class Grid:
 			cell.column = self.columns[x]
 			cell.block = block
 
+	def __str__(self):
 
+		ret = ''
+		for row in range(self.base):
+			for col in range(self.base):
+				ret += ' {} '.format(self.cellAt(row, col))
+			ret += '\n'
+		return ret
 
 def parsePuzzleFile( filename ):
 	'''Parse a puzzle file into a Grid object
@@ -143,12 +163,12 @@ def parsePuzzleFile( filename ):
 				if value == -1:
 					raise ValueError('Value {} at ({},{}) is not a valid base-{} character'.format(focus, ri,ci, base))
 
-				grid.insertCellAt( Cell(value, given=True), ri, ci )
+				grid.insertCellAt( Cell(base, value, given=True), ri, ci )
 
 			else:
 
 				# fill in a blank cell
-				newCell = Cell()
+				newCell = Cell(base)
 				newCell.domain = set(supportedAlphabets[base])
 				grid.insertCellAt( newCell, ri, ci )
 				
@@ -158,5 +178,8 @@ def parsePuzzleFile( filename ):
 		if not divFlag:
 			ri = ri+1
 
+	return grid
+
 if __name__ == '__main__':
-	parsePuzzleFile( sys.argv[1] )
+	grid = parsePuzzleFile( sys.argv[1] )
+	print grid
