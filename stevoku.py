@@ -7,7 +7,8 @@ import csp
 def main():
 
 	grid = puzzle.parsePuzzleFile( sys.argv[1] )
-	csp.checkArcConsistency(grid)
+	print grid
+	grid = csp.solve(grid)
 	print grid
 
 if __name__ == '__main__':

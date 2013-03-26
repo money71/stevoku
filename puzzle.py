@@ -93,6 +93,36 @@ class Grid:
 
 			self.dirtyCells.append(cell)
 
+
+	def unsolvedCells(self):
+
+		totalSet = set()
+		solvedSet = set()
+		for s in self.rows:
+			totalSet |= s
+			for c in s:
+				if c.value != None:
+					solvedSet.add(c)
+
+		return totalSet - solvedSet
+
+
+#	def dumpDomains(self):
+#		'''Take a snapshot of the cell domains for backtracking purposes'''
+#		
+#		ret = []
+#		for row in range(self.base):
+#			ret.append([])
+#			for col in range(self.base):
+#				cell = self.cellAt(col,row)
+#				if cell.value != None:
+#					ret[row].append(cell.value)
+#				else:
+#					ret[row].append(list(cell.domain))
+#
+#		return ret
+					
+
 	def __str__(self):
 
 		ret = ''
