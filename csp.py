@@ -66,9 +66,22 @@ def _recSolve(grid, complete=False):
 	if len(cell.domain) == 0:
 		return None
 
-	# for each possible value of the most constrained cell
 	origDomain = cell.domain
+
+	# find how much each option would change the grid
+	expenseList = []
 	for testVal in origDomain:
+		diff = fixArcConsistency(grid)
+		counter = 0
+		for changes in diff.values():
+			counter += len(changes)
+		expenseList.append((testVal, counter))
+		unfixArcConsistency(diff)
+	expenseList.sort(key=lambda x: x[1])
+	checkList = [x[0] for x in expenseList]
+
+
+	for testVal in checkList:
 		
 		# make a guess and rebalance
 		cell.value = testVal
@@ -77,7 +90,7 @@ def _recSolve(grid, complete=False):
 		diff = fixArcConsistency(grid)
 
 		# explore possibilities
-		consequence = _recSolve(grid)
+		consequence = _recSolve(grid, complete)
 
 		# if a solution is found return it!
 		if consequence != None:
