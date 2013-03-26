@@ -35,12 +35,12 @@ class Cell:
 
 		if self.value != None:
 			if self.given:
-				return pp.format( supportedAlphabets[self.base][self.value], pp.BOLD )
+				return pp.format( supportedAlphabets[self.base][self.value], pp.TEXT_GREEN )
 			else:
 				return supportedAlphabets[self.base][self.value]
 		elif len(self.domain) == 1:
 			val = list(self.domain)[0]
-			return pp.format( supportedAlphabets[self.base][val], pp.TEXT_GREEN )
+			return pp.format( supportedAlphabets[self.base][val], pp.TEXT_RED )
 		else:
 			#return pp.format( str(len(self.domain)), pp.TEXT_RED )
 			return '.'
