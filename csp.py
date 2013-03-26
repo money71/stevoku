@@ -2,7 +2,6 @@
 
 Contains the constraint satisfaction algorithms to actually solve the sudoku
 '''
-import copy
 
 def fixArcConsistency(grid):
 	'''Check updated cells for consistency and fix if necessary. Returns dict of changes'''

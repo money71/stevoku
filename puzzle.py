@@ -2,7 +2,6 @@
 
 Parse sudoku files and store in an inferrable format
 '''
-import sys
 from math import sqrt
 from collections import deque
 import prettyprint as pp
