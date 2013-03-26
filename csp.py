@@ -42,15 +42,18 @@ def unfixArcConsistency(diff):
 		cell.domain |= set(vals)
 
 
-def solve(grid):
-	'''Returns the solved version of grid, or None if no solution'''
+def solve(grid, complete=False):
+	'''Returns the solved version of grid, or None if no solution
+	If complete is enabled, returns list of all solutions, or [] if none
+	'''
 
 	fixArcConsistency(grid)
-	return _recSolve(grid)
+	return _recSolve(grid, complete)
 
 	
-def _recSolve(grid):
+def _recSolve(grid, complete=False):
 
+	ret = []
 	remainingCells = grid.unsolvedCells()
 
 	# pick most constrained cell
@@ -78,7 +81,10 @@ def _recSolve(grid):
 
 		# if a solution is found return it!
 		if consequence != None:
-			return consequence
+			if complete:
+				ret.append(consequence)
+			else:
+				return consequence
 
 		# otherwise roll back domain changes and guess again
 		else:
@@ -88,5 +94,8 @@ def _recSolve(grid):
 	# undo all picks and return failure
 	cell.value = None
 	cell.domain = origDomain
-	return None
+	if complete:
+		return ret
+	else:
+		return None
 

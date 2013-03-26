@@ -4,7 +4,9 @@ Parse sudoku files and store in an inferrable format
 '''
 from math import sqrt
 from collections import deque
+import random
 import prettyprint as pp
+import csp
 
 supportedAlphabets = {
 	 4: '1234',
@@ -206,3 +208,40 @@ def parsePuzzleFile( filename ):
 
 	return grid
 
+
+
+def generatePuzzle(base = 9):
+
+	random.seed()
+
+	# initialize an empty grid
+	grid = Grid(base)
+	for row in range(base):
+		for col in range(base):
+			newCell = Cell(base)
+			newCell.domain = set(range(base))
+			grid.insertCellAt(newCell, row, col)
+
+	# randomly seed with one of each possible value
+	for val in range(base):
+
+		placed = False
+		while not placed:
+
+			row,col = random.randrange(base), random.randrange(base)
+			cell = grid.cellAt(row,col)
+			if val in cell.domain:
+				cell.value = val
+				cell.domain = set([val])
+				placed = True
+			
+		csp.fixArcConsistency(grid)
+
+	# solve randomly-seeded puzzle
+	solutions = csp.solve( grid, complete=True )
+
+	#for s in solutions:
+	#	print s
+	print len(solutions), 'solutions'
+
+	return grid
