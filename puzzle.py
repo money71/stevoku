@@ -58,38 +58,38 @@ class Grid:
 		self.dirtyCells = deque()
 
 	
-	def blockAt(self, x, y):
+	def blockAt(self, row, column):
 
 		blockBase = int(sqrt(self.base))
-		blockX = int(x/blockBase)
-		blockY = int(y/blockBase)
+		blockRow = int(row/blockBase)
+		blockCol = int(column/blockBase)
 
-		if x < self.base and y < self.base:
-			return self.blocks[blockBase*blockY + blockX]
+		if row < self.base and column < self.base:
+			return self.blocks[blockBase*blockRow + blockCol]
 		else:
 			raise IndexError('Coordinates out of range')
 
 
-	def cellAt(self, x, y):
+	def cellAt(self, row, column):
 	
-		intersect = self.columns[x].intersection(self.rows[y])
+		intersect = self.rows[row].intersection(self.columns[column])
 		if len(intersect) != 0:
 			return list(intersect)[0]
 		else:
 			return None
 
 
-	def insertCellAt(self, cell, x, y):
+	def insertCellAt(self, cell, row, column):
 
-		block = self.blockAt(x,y)
-		if cell not in self.columns[x] and cell not in self.rows[y] and cell not in block:
+		block = self.blockAt(row, column)
+		if cell not in self.columns[column] and cell not in self.rows[row] and cell not in block:
 
-			self.columns[x].add(cell)
-			self.rows[y].add(cell)
+			self.columns[column].add(cell)
+			self.rows[row].add(cell)
 			block.add(cell)
 			
-			cell.row = self.rows[y]
-			cell.column = self.columns[x]
+			cell.row = self.rows[row]
+			cell.column = self.columns[column]
 			cell.block = block
 
 			self.dirtyCells.append(cell)
@@ -108,22 +108,6 @@ class Grid:
 		return totalSet - solvedSet
 
 
-#	def dumpDomains(self):
-#		'''Take a snapshot of the cell domains for backtracking purposes'''
-#		
-#		ret = []
-#		for row in range(self.base):
-#			ret.append([])
-#			for col in range(self.base):
-#				cell = self.cellAt(col,row)
-#				if cell.value != None:
-#					ret[row].append(cell.value)
-#				else:
-#					ret[row].append(list(cell.domain))
-#
-#		return ret
-					
-
 	def __str__(self):
 
 		ret = ''
@@ -138,6 +122,7 @@ class Grid:
 				ret += ' {} '.format(self.cellAt(row, col))
 			ret += '\n'
 		return ret
+
 
 def parsePuzzleFile( filename ):
 	'''Parse a puzzle file into a Grid object
@@ -169,7 +154,7 @@ def parsePuzzleFile( filename ):
 	base = ((sqrt(5+4*l)-1)/2)**2
 	if len(input[0]) != len(input) or int(base) != base:
 
-		raise SyntaxError('Puzzle not of proper dimensions')
+		raise SyntaxError('Input does not have appropriate dimensions')
 
 	else:
 		base = int(base)
