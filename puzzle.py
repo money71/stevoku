@@ -115,11 +115,11 @@ class Grid:
 		blockBase = int(sqrt(self.base))
 		for row in range(self.base):
 			if row != 0 and row % blockBase == 0:
-				div = ('---'*blockBase+'-+-')*blockBase+'\n'
-				ret += div[:-4]+'\n'
+				div = ('---'*blockBase+'+')*blockBase+'\n'
+				ret += div[:-2]+'\n'
 			for col in range(self.base):
 				if col != 0 and col % blockBase == 0:
-					ret += ' | '
+					ret += '|'
 				ret += ' {} '.format(self.cellAt(row, col))
 			ret += '\n'
 		return ret
