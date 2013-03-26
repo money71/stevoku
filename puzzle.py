@@ -42,7 +42,8 @@ class Cell:
 			val = list(self.domain)[0]
 			return pp.format( supportedAlphabets[self.base][val], pp.TEXT_GREEN )
 		else:
-			return pp.format( str(len(self.domain)), pp.TEXT_RED )
+			#return pp.format( str(len(self.domain)), pp.TEXT_RED )
+			return '.'
 
 
 class Grid:
