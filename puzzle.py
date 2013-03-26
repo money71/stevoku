@@ -4,7 +4,7 @@ Parse sudoku files and store in an inferrable format
 '''
 import sys
 from math import sqrt
-
+from collections import deque
 import prettyprint as pp
 
 supportedAlphabets = {
@@ -26,7 +26,7 @@ class Cell:
 		self.column = None
 		self.block = None
 
-		self.domain = []
+		self.domain = set()
 		self.value = value
 		self.base = base
 		self.given = given
@@ -36,12 +36,13 @@ class Cell:
 		if self.value != None:
 			if self.given:
 				return pp.format( supportedAlphabets[self.base][self.value], pp.BOLD )
-			elif len(self.domain) == 1:
-				return pp.format( supportedAlphabets[self.base][self.value], pp.TEXT_RED )
 			else:
 				return supportedAlphabets[self.base][self.value]
+		elif len(self.domain) == 1:
+			val = list(self.domain)[0]
+			return pp.format( supportedAlphabets[self.base][val], pp.TEXT_GREEN )
 		else:
-			return '.'
+			return pp.format( str(len(self.domain)), pp.TEXT_RED )
 
 
 class Grid:
@@ -53,6 +54,7 @@ class Grid:
 		self.rows = [set() for i in range(base)]
 		self.columns = [set() for i in range(base)]
 		self.blocks = [set() for i in range(base)]
+		self.dirtyCells = deque()
 
 	
 	def blockAt(self, x, y):
@@ -88,6 +90,8 @@ class Grid:
 			cell.row = self.rows[y]
 			cell.column = self.columns[x]
 			cell.block = block
+
+			self.dirtyCells.append(cell)
 
 	def __str__(self):
 
@@ -168,14 +172,15 @@ def parsePuzzleFile( filename ):
 				value = supportedAlphabets[base].find(focus)
 				if value == -1:
 					raise ValueError('Value {} at ({},{}) is not a valid base-{} character'.format(focus, ri,ci, base))
-
-				grid.insertCellAt( Cell(base, value, given=True), ri, ci )
+				newCell = Cell(base, value, given=True)
+				newCell.domain = set([value])
+				grid.insertCellAt( newCell, ri, ci )
 
 			else:
 
 				# fill in a blank cell
 				newCell = Cell(base)
-				newCell.domain = set(supportedAlphabets[base])
+				newCell.domain = set(range(base))
 				grid.insertCellAt( newCell, ri, ci )
 				
 
@@ -186,6 +191,3 @@ def parsePuzzleFile( filename ):
 
 	return grid
 
-if __name__ == '__main__':
-	grid = parsePuzzleFile( sys.argv[1] )
-	print grid
