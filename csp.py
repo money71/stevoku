@@ -48,14 +48,15 @@ def solve(grid, complete=False):
 	'''Returns the solved version of grid, or None if no solution
 	If complete is enabled, returns list of all solutions, or [] if none
 	'''
+	print 20*'\n'
 	def printGrid(grid):
 		while(True):
+			print '\033[21ACurrent state:'
 			print grid
-			time.sleep(10)
+			time.sleep(3)
 	t = threading.Thread(target=printGrid, args=(grid,))
 	t.daemon = True
 	t.start()
-
 
 	fixArcConsistency(grid)
 	return _recSolve(grid, complete)
