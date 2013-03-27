@@ -52,11 +52,12 @@ def solve(grid, complete=False):
 	If complete is enabled, returns list of all solutions, or [] if none
 	'''
 
+	grid.fails = 0
 	outputLength = grid.base + int(sqrt(grid.base)) + 1
 	print (outputLength-1)*'\n'
 	def printGrid(grid):
 		while(True):
-			print '\033[{}ACurrent state:'.format(outputLength)
+			print '\033[{}ACurrent state ({} fails):'.format(outputLength, grid.fails)
 			print grid
 			time.sleep(3)
 	t = threading.Thread(target=printGrid, args=(grid,))
@@ -80,6 +81,7 @@ def _recSolve(grid, complete=False):
 
 	# if there are no possible solutions, fail
 	if len(cell.domain) == 0:
+		grid.fails += 1
 		return None
 
 	origDomain = cell.domain
