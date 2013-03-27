@@ -6,6 +6,7 @@ import threading
 import multiprocessing
 import time
 from math import sqrt
+import pp
 
 
 def fixArcConsistency(grid):
@@ -13,27 +14,47 @@ def fixArcConsistency(grid):
 
 	diff = {}
 
+	job_server = pp.Server()
+	template = pp.Template(job_server, _fixCellArc, (), ('collections',))
+	
+
 	# loop until the state is consistent (no more dirty cells)
-	while len(grid.dirtyCells) > 0 or threading.activeCount() > 2:
+	while len(grid.dirtyCells) > 0:
 
-		if len(grid.dirtyCells) > 0 and threading.activeCount() < multiprocessing.cpu_count():
-			t = threading.Thread( target=_fixCellArc, args=(grid, diff) )
-			t.start()
+		#if len(grid.dirtyCells) > 0 and threading.activeCount() < multiprocessing.cpu_count():
+			#t = threading.Thread( target=_fixCellArc, args=(grid, diff) )
+			#t.start()
 
-		time.sleep(0)
+		jobs = []
+		for i in range(job_server.get_ncpus()):
+			jobs.append(template.submit(grid, diff))
+		job_server.wait()
 
+		# merge in results
+		for j in jobs:
+			j()
+		#print 'Round complete'
+
+	print 'fixArcConsistency completed'
 	return diff
 
 
 def _fixCellArc(grid, diff):
 
+	#print 'Trying to fix cell arc'
 	try:
 		dirty = grid.dirtyCells.popleft()
 	except IndexError:
 		return
 
 	# loop over each cell constrained by the dirty cell that is not the dirty cell itself
-	for cell in (dirty.row | dirty.column | dirty.block) - set([dirty]):
+	try:
+		dependentCells = (dirty.row | dirty.column | dirty.block) - set([dirty])
+	except TypeError as e:
+		print type(dirty.row), type(dirty.column), type(dirty.block)
+		raise e
+
+	for cell in dependentCells:
 
 		# arc consistency of cell -> dirty
 		# for all v1 in cell.domain, there exists v2 in dirty.domain such that v1 != v2
