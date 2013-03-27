@@ -3,7 +3,10 @@
 Contains the constraint satisfaction algorithms to actually solve the sudoku
 '''
 import threading
+import multiprocessing
 import time
+from math import sqrt
+
 
 def fixArcConsistency(grid):
 	'''Check updated cells for consistency and fix if necessary. Returns dict of changes'''
@@ -48,10 +51,12 @@ def solve(grid, complete=False):
 	'''Returns the solved version of grid, or None if no solution
 	If complete is enabled, returns list of all solutions, or [] if none
 	'''
-	print 20*'\n'
+
+	outputLength = grid.base + int(sqrt(grid.base)) + 1
+	print (outputLength-1)*'\n'
 	def printGrid(grid):
 		while(True):
-			print '\033[21ACurrent state:'
+			print '\033[{}ACurrent state:'.format(outputLength)
 			print grid
 			time.sleep(3)
 	t = threading.Thread(target=printGrid, args=(grid,))
