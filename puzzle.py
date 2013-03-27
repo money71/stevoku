@@ -237,6 +237,8 @@ def generatePuzzle(base = 9):
 			
 		csp.fixArcConsistency(grid)
 
+	print grid
+	
 	# solve randomly-seeded puzzle
 	solutions = csp.solve( grid, complete=True )
 

@@ -21,7 +21,7 @@ def main():
 		grid = csp.solve(grid)
 		endTime = time.time()
 		print grid
-		print 'Solved in', round(endTime - startTime, 3), 'seconds'
+		print 'Solved in', round(endTime - startTime, 3), 'seconds after', grid.fails, 'attempts'
 
 	elif sys.argv[1] == 'generate':
 		grid = puzzle.generatePuzzle(int(sys.argv[2]))

@@ -14,30 +14,45 @@ def fixArcConsistency(grid):
 	diff = {}
 
 	# loop until the state is consistent (no more dirty cells)
-	while len(grid.dirtyCells) != 0:
+	while len(grid.dirtyCells) > 0 or threading.activeCount() > 2:
 
-		dirty = grid.dirtyCells.popleft()
+		if len(grid.dirtyCells) > 0 and threading.activeCount() < multiprocessing.cpu_count():
+			t = threading.Thread( target=_fixCellArc, args=(grid, diff) )
+			t.start()
 
-		# loop over each cell constrained by the dirty cell that is not the dirty cell itself
-		for cell in (dirty.row | dirty.column | dirty.block) - set([dirty]):
-
-			# arc consistency of cell -> dirty
-			# for all v1 in cell.domain, there exists v2 in dirty.domain such that v1 != v2
-			# if not, remove v1 from cell.domain and add cell to dirty list
-			for v1 in set(cell.domain):
-				if len(dirty.domain-set([v1])) == 0:
-
-					cell.domain.remove(v1)
-
-					# add value to diff list
-					if cell not in diff:
-						diff[cell] = []
-					diff[cell].append(v1)
-
-					if cell not in grid.dirtyCells:
-						grid.dirtyCells.append(cell)
+		time.sleep(0)
 
 	return diff
+
+
+def _fixCellArc(grid, diff):
+
+	try:
+		dirty = grid.dirtyCells.popleft()
+	except IndexError:
+		return
+
+	# loop over each cell constrained by the dirty cell that is not the dirty cell itself
+	for cell in (dirty.row | dirty.column | dirty.block) - set([dirty]):
+
+		# arc consistency of cell -> dirty
+		# for all v1 in cell.domain, there exists v2 in dirty.domain such that v1 != v2
+		# if not, remove v1 from cell.domain and add cell to dirty list
+		for v1 in set(cell.domain):
+			if len(dirty.domain-set([v1])) == 0:
+
+				try:
+					cell.domain.remove(v1)
+				except KeyError:
+					pass
+
+				# add value to diff list
+				if cell not in diff:
+					diff[cell] = []
+				diff[cell].append(v1)
+
+				if cell not in grid.dirtyCells:
+					grid.dirtyCells.append(cell)
 
 
 def unfixArcConsistency(diff):
@@ -52,11 +67,14 @@ def solve(grid, complete=False):
 	If complete is enabled, returns list of all solutions, or [] if none
 	'''
 
+	print 'Proc count:', multiprocessing.cpu_count()
+
+	grid.fails = 0
 	outputLength = grid.base + int(sqrt(grid.base)) + 1
-	print (outputLength-1)*'\n'
+	print outputLength*'\n',
 	def printGrid(grid):
 		while(True):
-			print '\033[{}ACurrent state:'.format(outputLength)
+			print '\033[{}ACurrent state ({} fails):'.format(outputLength, grid.fails)
 			print grid
 			time.sleep(3)
 	t = threading.Thread(target=printGrid, args=(grid,))
@@ -80,6 +98,7 @@ def _recSolve(grid, complete=False):
 
 	# if there are no possible solutions, fail
 	if len(cell.domain) == 0:
+		grid.fails += 1
 		return None
 
 	origDomain = cell.domain
