@@ -72,10 +72,11 @@ def _recSolve(grid, complete=False):
 
 	ret = []
 	remainingCells = grid.unsolvedCells()
+	#print 'Cells remaining:', len(remainingCells)
 
 	# pick most constrained cell
 	if len(remainingCells) == 0:
-		print 'Solution found!'
+		#print 'Solution found!'
 		if complete:
 			return [grid.deepCopy()]
 		else:
@@ -86,19 +87,25 @@ def _recSolve(grid, complete=False):
 	# if there are no possible solutions, fail
 	if len(cell.domain) == 0:
 		grid.fails += 1
-		return None
+		if complete:
+			return []
+		else:
+			return None
 
 	origDomain = cell.domain
 
 	# find how much each option would change the grid
 	expenseList = []
 	for testVal in origDomain:
+		cell.domain = set([testVal])
+		grid.dirtyCells.append(cell)
 		diff = fixArcConsistency(grid)
 		counter = 0
 		for changes in diff.values():
 			counter += len(changes)
 		expenseList.append((testVal, counter))
 		unfixArcConsistency(diff)
+	cell.domain = origDomain
 	expenseList.sort(key=lambda x: x[1])
 	checkList = [x[0] for x in expenseList]
 
@@ -115,15 +122,13 @@ def _recSolve(grid, complete=False):
 		consequence = _recSolve(grid, complete)
 
 		# if a solution is found return it!
-		if consequence != None:
-			if complete:
-				ret.extend(consequence)
-			else:
-				return consequence
+		if complete:
+			ret.extend(consequence)
+		elif consequence != None:
+			return consequence
 
-		# otherwise roll back domain changes and guess again
-		else:
-			unfixArcConsistency(diff)
+		# roll back domain changes and guess again
+		unfixArcConsistency(diff)
 
 	# if we have tried every possibility for the cell with no viable solutions
 	# undo all picks and return failure

@@ -239,32 +239,28 @@ def generatePuzzle(base = 9):
 			grid.insertCellAt(newCell, row, col)
 
 	# randomly seed with one of each possible value
-	#for val in range(base):
+	for val in range(base):
 
-	#	placed = False
-	#	while not placed:
+		placed = False
+		while not placed:
 
-	#		col = random.randrange(base)
-	#		cell = grid.cellAt(val,col)
-	#		if val in cell.domain:
-	#			cell.value = val
-	#			cell.domain = set([val])
-	#			cell.given = True
-	#			placed = True
+			# put an x randomly in row x, and rebalance
+			col = random.randrange(base)
+			cell = grid.cellAt(val,col)
+			if val in cell.domain:
+				cell.value = val
+				cell.domain = set([val])
+				grid.dirtyCells.append(cell)
+				csp.fixArcConsistency(grid)
+				cell.given = True
+				placed = True
 			
-	#	csp.fixArcConsistency(grid)
-
-	#cell = grid.cellAt(int(base/2), int(base/2))
-	#cell.value = 5
-	#cell.domain = set([5])
-	#cell.given = True
-
 	# solve randomly-seeded puzzle
-	solutions = csp.solve( grid, complete=True )
+	solutions = csp.solve( grid, complete=False )
 
-	print len(solutions), 'solutions,', grid.fails, 'attempts'
-	if len(solutions) == 0:
-		return generatePuzzle(base)
-	else:
-		return solutions[0]
-
+	#print len(solutions), 'solutions,', grid.fails, 'attempts'
+	#if len(solutions) == 0:
+	#	return generatePuzzle(base)
+	#else:
+	#	return solutions[0]
+	return solutions
