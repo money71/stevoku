@@ -27,7 +27,11 @@ class Cell:
 		self.column = None
 		self.block = None
 
-		self.domain = set()
+		if value != None:
+			self.domain = set([value])
+		else:
+			self.domain = range(base)
+
 		self.value = value
 		self.base = base
 		self.given = given
@@ -107,6 +111,20 @@ class Grid:
 					solvedSet.add(c)
 
 		return totalSet - solvedSet
+
+	def deepCopy(self):
+
+		newGrid = Grid(self.base)
+
+		for row in range(self.base):
+			for col in range(self.base):
+
+				oldCell = self.cellAt(row,col)
+				newCell = Cell( oldCell.base, oldCell.value, oldCell.given )
+				newCell.domain = oldCell.domain.copy()
+				newGrid.insertCellAt(newCell, row, col)
+
+		return newGrid
 
 
 	def __str__(self):
@@ -190,14 +208,12 @@ def parsePuzzleFile( filename ):
 				if value == -1:
 					raise ValueError('Value {} at ({},{}) is not a valid base-{} character'.format(focus, ri,ci, base))
 				newCell = Cell(base, value, given=True)
-				newCell.domain = set([value])
 				grid.insertCellAt( newCell, ri, ci )
 
 			else:
 
 				# fill in a blank cell
 				newCell = Cell(base)
-				newCell.domain = set(range(base))
 				grid.insertCellAt( newCell, ri, ci )
 				
 
@@ -210,9 +226,9 @@ def parsePuzzleFile( filename ):
 
 
 
-def generatePuzzle(base = 9):
+random.seed()
 
-	random.seed()
+def generatePuzzle(base = 9):
 
 	# initialize an empty grid
 	grid = Grid(base)
@@ -223,25 +239,32 @@ def generatePuzzle(base = 9):
 			grid.insertCellAt(newCell, row, col)
 
 	# randomly seed with one of each possible value
-	for val in range(base):
+	#for val in range(base):
 
-		placed = False
-		while not placed:
+	#	placed = False
+	#	while not placed:
 
-			row,col = random.randrange(base), random.randrange(base)
-			cell = grid.cellAt(row,col)
-			if val in cell.domain:
-				cell.value = val
-				cell.domain = set([val])
-				placed = True
+	#		col = random.randrange(base)
+	#		cell = grid.cellAt(val,col)
+	#		if val in cell.domain:
+	#			cell.value = val
+	#			cell.domain = set([val])
+	#			cell.given = True
+	#			placed = True
 			
-		csp.fixArcConsistency(grid)
+	#	csp.fixArcConsistency(grid)
+
+	#cell = grid.cellAt(int(base/2), int(base/2))
+	#cell.value = 5
+	#cell.domain = set([5])
+	#cell.given = True
 
 	# solve randomly-seeded puzzle
 	solutions = csp.solve( grid, complete=True )
 
-	#for s in solutions:
-	#	print s
-	print len(solutions), 'solutions'
+	print len(solutions), 'solutions,', grid.fails, 'attempts'
+	if len(solutions) == 0:
+		return generatePuzzle(base)
+	else:
+		return solutions[0]
 
-	return grid

@@ -54,7 +54,7 @@ def solve(grid, complete=False):
 
 	grid.fails = 0
 	outputLength = grid.base + int(sqrt(grid.base)) + 1
-	print (outputLength-1)*'\n'
+	#print (outputLength-1)*'\n'
 	def printGrid(grid):
 		while(True):
 			print '\033[{}ACurrent state ({} fails):'.format(outputLength, grid.fails)
@@ -62,7 +62,7 @@ def solve(grid, complete=False):
 			time.sleep(3)
 	t = threading.Thread(target=printGrid, args=(grid,))
 	t.daemon = True
-	t.start()
+	#t.start()
 
 	fixArcConsistency(grid)
 	return _recSolve(grid, complete)
@@ -75,7 +75,11 @@ def _recSolve(grid, complete=False):
 
 	# pick most constrained cell
 	if len(remainingCells) == 0:
-		return grid
+		print 'Solution found!'
+		if complete:
+			return [grid.deepCopy()]
+		else:
+			return grid.deepCopy()
 	else:
 		cell = min(remainingCells, key = lambda c: len(c.domain))
 
@@ -113,7 +117,7 @@ def _recSolve(grid, complete=False):
 		# if a solution is found return it!
 		if consequence != None:
 			if complete:
-				ret.append(consequence)
+				ret.extend(consequence)
 			else:
 				return consequence
 
