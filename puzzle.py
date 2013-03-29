@@ -232,7 +232,7 @@ def parsePuzzleFile( filename ):
 
 random.seed()
 
-def generatePuzzle(base = 9):
+def generatePuzzle(base = 9, monitor = False):
 
 	# initialize an empty grid
 	grid = Grid(base)
@@ -259,7 +259,7 @@ def generatePuzzle(base = 9):
 				placed = True
 			
 	# solve randomly-seeded puzzle
-	solutions = csp.solve( grid, complete=False )
+	solutions = csp.solve( grid, complete=False, monitor=monitor )
 
 	#print len(solutions), 'solutions,', grid.fails, 'attempts'
 	#if len(solutions) == 0:

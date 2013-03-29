@@ -47,22 +47,23 @@ def unfixArcConsistency(diff):
 		cell.domain |= set(vals)
 
 
-def solve(grid, complete=False):
+def solve(grid, complete=False, monitor=False):
 	'''Returns the solved version of grid, or None if no solution
 	If complete is enabled, returns list of all solutions, or [] if none
 	'''
 
 	grid.fails = 0
-	outputLength = grid.base + int(sqrt(grid.base)) + 1
-	#print (outputLength-1)*'\n'
-	def printGrid(grid):
-		while(True):
-			print '\033[{}ACurrent state ({} fails):'.format(outputLength, grid.fails)
-			print grid
-			time.sleep(3)
-	t = threading.Thread(target=printGrid, args=(grid,))
-	t.daemon = True
-	#t.start()
+	if monitor:
+		outputLength = grid.base + int(sqrt(grid.base)) + 1
+		print (outputLength-1)*'\n'
+		def printGrid(grid):
+			while(True):
+				print '\033[{}ACurrent state ({} fails):'.format(outputLength, grid.fails)
+				print grid
+				time.sleep(3)
+		t = threading.Thread(target=printGrid, args=(grid,))
+		t.daemon = True
+		t.start()
 
 	fixArcConsistency(grid)
 	return _recSolve(grid, complete)

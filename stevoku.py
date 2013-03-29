@@ -11,21 +11,27 @@ def main():
 
 	colorama.init()
 
-	if len(sys.argv) != 3:
+	if len(sys.argv) < 3:
 		printUsage()
 
 	elif sys.argv[1] == 'solve':
 		grid = puzzle.parsePuzzleFile( sys.argv[2] )
+		monitor = '--monitor' in sys.argv
+
 		#print grid
 		startTime = time.time()
-		grid = csp.solve(grid)
+		grid = csp.solve(grid, monitor=monitor)
 		endTime = time.time()
 		print grid
 		print 'Solved in {} seconds with {} backtracks'.format(round(endTime - startTime, 3), grid.fails)
 
 	elif sys.argv[1] == 'generate':
-		grid = puzzle.generatePuzzle(int(sys.argv[2]))
+		monitor = '--monitor' in sys.argv
+		grid = puzzle.generatePuzzle(int(sys.argv[2]), monitor)
 		print grid
+
+	else:
+		printUsage()
 
 
 def printUsage():
