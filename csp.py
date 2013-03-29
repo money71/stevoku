@@ -105,6 +105,7 @@ def _recSolve(grid, complete=False):
 			counter += len(changes)
 		expenseList.append((testVal, counter))
 		unfixArcConsistency(diff)
+
 	cell.domain = origDomain
 	expenseList.sort(key=lambda x: x[1])
 	checkList = [x[0] for x in expenseList]
@@ -134,6 +135,7 @@ def _recSolve(grid, complete=False):
 	# undo all picks and return failure
 	cell.value = None
 	cell.domain = origDomain
+
 	if complete:
 		return ret
 	else:
