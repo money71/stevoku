@@ -30,7 +30,7 @@ class Cell:
 		if value != None:
 			self.domain = set([value])
 		else:
-			self.domain = range(base)
+			self.domain = set(range(base))
 
 		self.value = value
 		self.base = base
@@ -97,7 +97,8 @@ class Grid:
 			cell.column = self.columns[column]
 			cell.block = block
 
-			self.dirtyCells.append(cell)
+			if cell.value != None:
+				self.dirtyCells.append(cell)
 
 
 	def unsolvedCells(self):
@@ -115,6 +116,7 @@ class Grid:
 	def deepCopy(self):
 
 		newGrid = Grid(self.base)
+		newGrid.fails = self.fails
 
 		for row in range(self.base):
 			for col in range(self.base):
@@ -235,7 +237,6 @@ def generatePuzzle(base = 9):
 	for row in range(base):
 		for col in range(base):
 			newCell = Cell(base)
-			newCell.domain = set(range(base))
 			grid.insertCellAt(newCell, row, col)
 
 	# randomly seed with one of each possible value
@@ -247,11 +248,11 @@ def generatePuzzle(base = 9):
 			# put an x randomly in row x, and rebalance
 			col = random.randrange(base)
 			cell = grid.cellAt(val,col)
-			if val in cell.domain:
+			if val not in cell.row | cell.column | cell.block:
+			#if val in cell.domain:
 				cell.value = val
 				cell.domain = set([val])
 				grid.dirtyCells.append(cell)
-				csp.fixArcConsistency(grid)
 				cell.given = True
 				placed = True
 			

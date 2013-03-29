@@ -108,7 +108,7 @@ def _recSolve(grid, complete=False):
 	cell.domain = origDomain
 	expenseList.sort(key=lambda x: x[1])
 	checkList = [x[0] for x in expenseList]
-
+	#checkList = origDomain
 
 	for testVal in checkList:
 		
