@@ -49,8 +49,8 @@ class Cell:
 		elif len(self.domain) == 0:
 			return pp.format( '!', pp.BG_RED )
 		else:
-			return pp.format( supportedAlphabets[self.base][len(self.domain)-1], pp.TEXT_MAGENTA )
-			#return '.'
+			#return pp.format( supportedAlphabets[self.base][len(self.domain)-1], pp.TEXT_MAGENTA )
+			return '.'
 
 
 class Grid:
@@ -238,7 +238,7 @@ def generatePuzzle(base = 9, monitor = False):
 	grid = Grid(base)
 	for row in range(base):
 		for col in range(base):
-			newCell = Cell(base)
+			newCell = Cell(base, given=True)
 			grid.insertCellAt(newCell, row, col)
 
 	# randomly seed with one of each possible value
@@ -255,15 +255,45 @@ def generatePuzzle(base = 9, monitor = False):
 				cell.value = val
 				cell.domain = set([val])
 				grid.dirtyCells.append(cell)
-				cell.given = True
 				placed = True
-			
-	# solve randomly-seeded puzzle
-	solutions = csp.solve( grid, complete=False, monitor=monitor )
 
-	#print len(solutions), 'solutions,', grid.fails, 'attempts'
-	#if len(solutions) == 0:
-	#	return generatePuzzle(base)
-	#else:
-	#	return solutions[0]
-	return solutions
+	# solve randomly-seeded puzzle
+	seedGrid = csp.solve( grid, complete=False, monitor=monitor )
+	grid = None
+
+	return complicatePuzzle(seedGrid)
+
+
+def complicatePuzzle(grid):
+
+	row = random.randrange(grid.base)
+	col = random.randrange(grid.base)
+
+	cell1 = grid.cellAt(row,col)
+	cell2 = grid.cellAt( grid.base-row-1, grid.base-col-1 )
+	if cell1.value == None or cell2.value == None:
+		return complicatePuzzle(grid)
+
+	# reset cells
+	for cell in [cell1, cell2]:
+		cell.value = None
+		cell.given = False
+		cell.domain = set(range(grid.base))
+
+	# flag all unremoved cells as dirty and rebalance
+	for dep in reduce(lambda a,b: a|b, grid.rows) - grid.unsolvedCells():
+		grid.dirtyCells.append(dep)
+	diff = csp.fixArcConsistency(grid)
+
+	# find all solutions
+	solutions = csp.solve(grid, complete=True)
+		
+	csp.unfixArcConsistency(diff)
+	if len(solutions) != 1:
+		return grid
+	else:
+		return complicatePuzzle(grid)
+
+
+
+
